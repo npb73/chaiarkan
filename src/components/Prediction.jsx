@@ -58,24 +58,10 @@ export default function Prediction({ cards, values, constellationName, onClose, 
   const colOf = (rank) => (COLS === 1 ? 0 : [1, 0, 2][rank]);
 
   return (
-    <div className={`prophecy phase-${phase}`} role="dialog" aria-modal="true" aria-label="Предсказание оракула">
+    <div className={`prophecy phase-${phase}`} role="dialog" aria-modal="true" aria-label={`Предсказание оракула: ${constellationName}`}>
       <div className="prophecy-backdrop" onClick={phase === 'reveal' ? onClose : undefined} />
       <div className="prophecy-body">
-        <div className="prophecy-head">
-          <div className="kicker">Предсказание · 卜</div>
-          <h2 className="prophecy-title">
-            {phase === 'reveal' ? constellationName : 'Оракул тасует колоду…'}
-          </h2>
-          <p className="prophecy-sub muted">
-            {phase === 'reveal'
-              ? cards.length > 1
-                ? 'Колода выбрала несколько сортов, близких вашему небу.'
-                : 'Колода выбрала сорт, близкий вашему небу.'
-              : 'Звёзды вашего созвездия ищут свой чай.'}
-          </p>
-        </div>
-
-        <div className="prophecy-table" style={{ '--cols': COLS }}>
+        <div className={`prophecy-table cols-${COLS}`} style={{ '--cols': COLS }}>
           <div className="deck" aria-hidden="true">
             {Array.from({ length: 7 }, (_, k) => (
               <div key={k} className="deck-card" style={{ '--k': k }}>

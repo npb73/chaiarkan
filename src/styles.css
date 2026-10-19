@@ -2204,3 +2204,51 @@ button {
     filter: drop-shadow(0 0 24px rgba(240, 207, 134, 0.45));
   }
 }
+
+/* ---- Крупные карты: заголовок над раскладом убран, карты занимают сцену ---- */
+.prophecy-table {
+  --cw: clamp(260px, min(calc((100vw - 120px) / 3), calc((100svh - 110px) / 1.76)), 380px);
+}
+.prophecy-table.cols-1 {
+  --cw: min(420px, 90vw, calc((100svh - 110px) / 1.76));
+}
+@media (max-width: 640px) {
+  .prophecy-table.cols-1 {
+    --cw: min(92vw, 420px);
+  }
+}
+.prophecy-body {
+  gap: 26px;
+}
+.tcard-frame {
+  padding: calc(var(--cw) * 0.05) calc(var(--cw) * 0.062) calc(var(--cw) * 0.062);
+}
+.tcard-top {
+  font-size: clamp(11px, calc(var(--cw) * 0.036), 13px);
+}
+.tcard-rank {
+  font-size: clamp(15px, calc(var(--cw) * 0.05), 19px);
+}
+.tcard-hanzi {
+  font-size: clamp(22px, calc(var(--cw) * 0.078), 30px);
+}
+.tcard-name {
+  font-size: clamp(27px, calc(var(--cw) * 0.092), 36px);
+}
+.tcard-alt {
+  font-size: clamp(15px, calc(var(--cw) * 0.05), 18px);
+}
+.tcard-meta,
+.tcard-legend {
+  font-size: clamp(11.5px, calc(var(--cw) * 0.038), 13.5px);
+}
+.tcard-desc {
+  font-size: clamp(13px, calc(var(--cw) * 0.043), 15.5px);
+}
+.tcard-brew {
+  font-size: clamp(12px, calc(var(--cw) * 0.039), 14px);
+}
+.tcard-btn {
+  font-size: clamp(13px, calc(var(--cw) * 0.041), 15px);
+  padding: 9px 18px;
+}
