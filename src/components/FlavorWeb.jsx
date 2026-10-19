@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { NOTES, MAX } from '../data/notes.js';
 import stoneAvif from '../assets/stone.avif';
 import stoneWebp from '../assets/stone.webp';
+import PlasmaEdges from './PlasmaEdges.jsx';
+import { plasmaColors } from '../lib/accent.js';
 
 // Геометрия в координатах viewBox: центр (0,0)
 const HALF = 340; // половина ширины viewBox
@@ -202,6 +204,8 @@ export default function FlavorWeb({ values, onChange, ghost, ghostColor = '#f3d4
   };
 
   const userPoly = useMemo(() => polyPoints(values), [values, compact]);
+  const userPts = useMemo(() => values.map((v, i) => pt(i, v)), [values, compact]);
+  const plasma = useMemo(() => plasmaColors(values), [values]);
   const ghostPoly = useMemo(() => (ghost ? polyPoints(ghost) : null), [ghost, compact]);
   const shown = dragging ?? active;
   const activeNote = shown !== null ? NOTES[shown] : null;
@@ -233,10 +237,11 @@ export default function FlavorWeb({ values, onChange, ghost, ghostColor = '#f3d4
           aria-label="Двенадцатилучевая карта вкуса чая"
         >
           <defs>
+            {/* заливка подхватывает цвета плазмы */}
             <radialGradient id="webFill" cx="0" cy="0" r={R} gradientUnits="userSpaceOnUse">
-              <stop offset="0" stopColor="#fff3cf" stopOpacity="0.5" />
-              <stop offset="0.4" stopColor="#e9b964" stopOpacity="0.3" />
-              <stop offset="1" stopColor="#3fd8c0" stopOpacity="0.24" />
+              <stop offset="0" stopColor="#fff3cf" stopOpacity="0.42" />
+              <stop offset="0.45" stopColor={plasma.a} stopOpacity="0.26" />
+              <stop offset="1" stopColor={plasma.b} stopOpacity="0.22" />
             </radialGradient>
             <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
               <feGaussianBlur stdDeviation="3.2" result="b" />
@@ -253,7 +258,7 @@ export default function FlavorWeb({ values, onChange, ghost, ghostColor = '#f3d4
           {/* вращающееся внешнее кольцо */}
           <g className="web-orbit">
             <circle r={R + 46} fill="none" stroke="rgba(243,212,138,.22)" strokeWidth="1" strokeDasharray="2 9" />
-            <circle r={R + 52} fill="none" stroke="rgba(169,139,255,.14)" strokeWidth="0.8" strokeDasharray="30 14 4 14" />
+            <circle r={R + 52} fill="none" stroke="rgba(95,214,180,.16)" strokeWidth="0.8" strokeDasharray="30 14 4 14" />
           </g>
 
           {/* «зодиакальное» кольцо из цветов нот */}
@@ -308,15 +313,19 @@ export default function FlavorWeb({ values, onChange, ghost, ghostColor = '#f3d4
 
           {/* созвездие пользователя */}
           <polygon points={userPoly} fill="url(#webFill)" stroke="none" className="web-fill" />
+          {/* мягкое свечение под лучом: меняется только когда двигают звёзды */}
           <polygon
             points={userPoly}
             fill="none"
-            stroke="#ffe9b0"
-            strokeWidth="1.6"
+            stroke={plasma.a}
+            strokeWidth="3"
+            strokeOpacity="0.45"
             strokeLinejoin="round"
             filter="url(#glow)"
             className="web-edge"
           />
+          {/* грани — плазменный луч из двух волн */}
+          <PlasmaEdges points={userPts} colorA={plasma.a} colorB={plasma.b} colorCore={plasma.core} />
 
           {/* звёзды-вершины */}
           {values.map((v, i) => {

@@ -2094,3 +2094,9 @@ button {
     --my: 24%;
   }
 }
+
+/* Плазменный луч граней: волны складываются светом */
+.plasma {
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
