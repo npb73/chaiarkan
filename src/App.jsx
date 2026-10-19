@@ -12,6 +12,8 @@ import FlavorWeb from './components/FlavorWeb.jsx';
 import Oracle from './components/Oracle.jsx';
 import Prediction, { drawCards } from './components/Prediction.jsx';
 import OrderModal from './components/OrderModal.jsx';
+import LegalPage from './components/LegalPage.jsx';
+import { DOCS } from './data/legal.js';
 import { Catalog, Footer, Header, NotesAtlas, Ritual, TeaScroll } from './components/Sections.jsx';
 
 const START = new Array(NOTES.length).fill(4);
@@ -42,6 +44,11 @@ function useIsPhone() {
 
 const sameSky = (a, b) => a.every((v, i) => Math.abs(v - b[i]) < 0.05);
 
+const docFromHash = () => {
+  const m = /^#doc-([a-z]+)$/.exec(window.location.hash);
+  return m && DOCS[m[1]] ? m[1] : null;
+};
+
 export default function App() {
   const fromUrl = useMemo(readFromUrl, []);
   const [values, setValues] = useState(fromUrl || START);
@@ -54,6 +61,22 @@ export default function App() {
   const ranking = useMemo(() => rankTeas(values), [values]);
   const constellation = useMemo(() => describeConstellation(values), [values]);
   const isPhone = useIsPhone();
+  const [doc, setDoc] = useState(docFromHash);
+  useEffect(() => {
+    const on = () => setDoc(docFromHash());
+    window.addEventListener('hashchange', on);
+    return () => window.removeEventListener('hashchange', on);
+  }, []);
+  const closeDoc = useCallback(() => {
+    const url = new URL(window.location.href);
+    url.hash = '';
+    try {
+      window.history.replaceState(null, '', url);
+    } catch {
+      /* noop */
+    }
+    setDoc(null);
+  }, []);
   const [prediction, setPrediction] = useState(null); // { values, cards, name }
   const [deckOpen, setDeckOpen] = useState(false);
   const [chosen, setChosen] = useState(null); // { tea, values } — для свитка сорта
@@ -241,6 +264,8 @@ export default function App() {
           onClose={() => setOrderFor(null)}
         />
       )}
+
+      {doc && <LegalPage id={doc} onClose={closeDoc} />}
 
       <div className={`toast ${toast ? 'show' : ''}`} role="status">
         {toast}

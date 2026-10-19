@@ -34,6 +34,11 @@ export default function Oracle({ fresh, onPredict, onShowAgain, onRandom, onRese
         <span>{fresh ? 'Посмотреть карты' : 'Получить предсказание'}</span>
       </button>
 
+      <p className="oracle-note">
+        Подбор работает на <a href="#doc-recommendations">рекомендательной технологии</a> только по звёздам, которые вы
+        расставили сами.
+      </p>
+
       <div className="oracle-links">
         <button className="link-btn" onClick={onRandom}>
           Случайное небо

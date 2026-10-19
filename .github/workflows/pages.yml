@@ -1,21 +1,21 @@
-name: Deploy to GitHub Pages
+name: Build and publish to GitHub Pages
 
+# После каждого пуша в main сайт собирается Vite и выкладывается в ветку gh-pages,
+# из которой его раздаёт GitHub Pages.
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
   group: pages
   cancel-in-progress: true
 
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -27,29 +27,15 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
-      # Если сборка Vite по какой-то причине упадёт, выкладывается готовая сборка из папки dist/,
-      # которая лежит в репозитории, — сайт не останется пустым.
       - name: Build
-        id: build
-        continue-on-error: true
         run: npm run build
 
-      - name: Warn about fallback
-        if: steps.build.outcome == 'failure'
-        run: echo "::warning::Vite build failed, deploying the committed dist/ instead"
+      - name: Disable Jekyll
+        run: touch dist/.nojekyll
 
-      - uses: actions/configure-pages@v5
-
-      - uses: actions/upload-pages-artifact@v3
+      - name: Publish to gh-pages
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          path: dist
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+          folder: dist
+          branch: gh-pages
+          clean: true

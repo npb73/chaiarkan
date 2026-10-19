@@ -13,6 +13,7 @@ import {
 } from '../lib/order.js';
 import { encodeValues } from '../lib/constellation.js';
 import MiniRadar from './MiniRadar.jsx';
+import { DOCS_VERSION, SELLER, docHref } from '../data/legal.js';
 
 /** Окно заказа: выбранный сорт, фасовка, контакты, доставка. */
 export default function OrderModal({ tea: initialTea, values, constellation, onClose }) {
@@ -27,7 +28,10 @@ export default function OrderModal({ tea: initialTea, values, constellation, onC
   const [city, setCity] = useState(saved.city || '');
   const [address, setAddress] = useState(saved.address || '');
   const [comment, setComment] = useState('');
+  // Согласие на обработку ПДн — отдельной отметкой, не вместе с условиями продажи (152-ФЗ, ред. с 01.09.2025)
   const [agree, setAgree] = useState(false);
+  const [terms, setTerms] = useState(false);
+  const [remember, setRemember] = useState(Boolean(saved.name || saved.phone));
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState('idle'); // idle | sending | done | error
   const [done, setDone] = useState(null);
@@ -43,7 +47,7 @@ export default function OrderModal({ tea: initialTea, values, constellation, onC
     document.body.style.overflow = 'hidden';
     firstRef.current?.focus({ preventScroll: true });
     const onKey = (e) => {
-      if (e.key === 'Escape') {
+      if (e.key === 'Escape' && !document.querySelector('.legal')) {
         e.stopPropagation();
         onClose();
       }
@@ -62,7 +66,8 @@ export default function OrderModal({ tea: initialTea, values, constellation, onC
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) e.email = 'Проверьте адрес почты';
     if (!city.trim()) e.city = 'Укажите город';
     if (address.trim().length < 4) e.address = 'Укажите адрес';
-    if (!agree) e.agree = 'Без согласия мы не сможем оформить заказ';
+    if (!agree) e.agree = 'Без согласия на обработку данных мы не сможем оформить и доставить заказ';
+    if (!terms) e.terms = 'Подтвердите, что ознакомились с условиями продажи';
     return e;
   };
 
@@ -85,11 +90,18 @@ export default function OrderModal({ tea: initialTea, values, constellation, onC
       delivery: { method: delivery, city: city.trim(), address: address.trim() },
       comment: comment.trim(),
       sky: { code: constellation?.code, name: constellation?.name, values: values ? encodeValues(values) : null },
+      // фиксация согласий: что именно, в какой редакции и когда подтвердил покупатель
+      consents: {
+        personalData: { given: true, docVersion: DOCS_VERSION, at: new Date().toISOString() },
+        termsAccepted: { given: true, docVersion: DOCS_VERSION, at: new Date().toISOString() },
+      },
     };
     setStatus('sending');
     try {
       await submitOrder(order);
-      saveContact({ name: name.trim(), phone, email: email.trim(), delivery, city: city.trim(), address: address.trim() });
+      if (remember)
+        saveContact({ name: name.trim(), phone, email: email.trim(), delivery, city: city.trim(), address: address.trim() });
+      else saveContact(null);
       setDone(order);
       setStatus('done');
     } catch {
@@ -306,17 +318,53 @@ export default function OrderModal({ tea: initialTea, values, constellation, onC
               <textarea id="order-comment" rows={2} value={comment} onChange={(e) => setComment(e.target.value)} />
             </label>
 
-            <label className="check">
-              <input
-                type="checkbox"
-                id="order-agree"
-                checked={agree}
-                onChange={(e) => setAgree(e.target.checked)}
-                {...fieldProps('agree')}
-              />
-              <span>Согласен на обработку персональных данных для оформления и доставки заказа</span>
-            </label>
-            <Err k="agree" />
+            <div className="consents">
+              <label className="check">
+                <input
+                  type="checkbox"
+                  id="order-agree"
+                  checked={agree}
+                  onChange={(e) => setAgree(e.target.checked)}
+                  {...fieldProps('agree')}
+                />
+                <span>
+                  Даю <a href={docHref('consent')}>согласие на обработку персональных данных</a> для оформления и
+                  доставки заказа. С <a href={docHref('privacy')}>Политикой обработки персональных данных</a>{' '}
+                  ознакомлен(а).
+                </span>
+              </label>
+              <Err k="agree" />
+
+              <label className="check">
+                <input
+                  type="checkbox"
+                  id="order-terms"
+                  checked={terms}
+                  onChange={(e) => setTerms(e.target.checked)}
+                  {...fieldProps('terms')}
+                />
+                <span>
+                  Ознакомлен(а) с <a href={docHref('terms')}>условиями продажи, доставки и возврата</a>.
+                </span>
+              </label>
+              <Err k="terms" />
+
+              <label className="check check-soft">
+                <input
+                  type="checkbox"
+                  id="order-remember"
+                  checked={remember}
+                  onChange={(e) => setRemember(e.target.checked)}
+                />
+                <span>Запомнить мои данные на этом устройстве — они останутся только в вашем браузере</span>
+              </label>
+            </div>
+
+            <p className="order-legal muted small">
+              Заказ — это предложение заключить договор. Продавец ({SELLER.shortName}) подтвердит его по телефону,
+              сообщит номер заказа, цену, стоимость и срок доставки. Отказаться от товара можно до получения и в течение
+              7 дней после.
+            </p>
 
             {status === 'error' && (
               <p className="field-err" role="alert">

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { NOTES } from '../data/notes.js';
 import { TEAS, TEA_TYPES } from '../data/teas.js';
 import MiniRadar from './MiniRadar.jsx';
+import { DOC_LIST, PRODUCT_INFO, SELLER, docHref } from '../data/legal.js';
 
 /* ------------------------------ Шапка ------------------------------ */
 export function Header() {
@@ -112,6 +113,42 @@ export function TeaScroll({ chosen, onOrder }) {
               </div>
             </div>
           )}
+
+          <details className="product-info">
+            <summary>Сведения о товаре</summary>
+            <dl>
+              <div>
+                <dt>Состав</dt>
+                <dd>{composition(tea)}</dd>
+              </div>
+              <div>
+                <dt>Страна происхождения</dt>
+                <dd>
+                  {PRODUCT_INFO.country}, {tea.region}
+                </dd>
+              </div>
+              <div>
+                <dt>Изготовитель и импортёр</dt>
+                <dd>{PRODUCT_INFO.manufacturer}</dd>
+              </div>
+              <div>
+                <dt>Срок годности</dt>
+                <dd>{PRODUCT_INFO.shelfLife}</dd>
+              </div>
+              <div>
+                <dt>Условия хранения</dt>
+                <dd>{PRODUCT_INFO.storage}</dd>
+              </div>
+              <div>
+                <dt>Подтверждение соответствия</dt>
+                <dd>{PRODUCT_INFO.conformity}</dd>
+              </div>
+            </dl>
+            <p className="muted small">
+              Цена, наличие и стоимость доставки сообщаются при подтверждении заказа.{' '}
+              <a href={docHref('terms')}>Условия продажи и возврата</a>
+            </p>
+          </details>
 
           <dl className="brew">
             <div>
@@ -298,6 +335,18 @@ export function Ritual() {
 }
 
 /* ------------------------------ Подвал ------------------------------ */
+const TYPE_COMPOSITION = {
+  green: 'чай зелёный листовой',
+  yellow: 'чай жёлтый листовой',
+  white: 'чай белый листовой',
+  oolong: 'чай улун листовой',
+  red: 'чай красный (чёрный) листовой',
+  puer: 'чай пуэр',
+  dark: 'чай тёмный (хэй ча) прессованный',
+  scented: 'чай зелёный, ароматизированный цветками жасмина',
+};
+const composition = (tea) => `${TYPE_COMPOSITION[tea.type] || 'чай листовой'}, 100 %, без добавок`;
+
 export function Footer() {
   return (
     <footer className="footer">
@@ -305,6 +354,29 @@ export function Footer() {
         <span className="brand-mark">✦</span> ЧайАркан
       </div>
       <p className="muted">Карта вкуса китайского чая. Двенадцать нот, бесконечное число созвездий.</p>
+
+      <nav className="footer-docs" aria-label="Документы">
+        {DOC_LIST.map(([id, label]) => (
+          <a key={id} href={docHref(id)}>
+            {label}
+          </a>
+        ))}
+      </nav>
+
+      <div className="footer-seller">
+        <p>
+          {SELLER.fullName} · {SELLER.ogrnLabel} {SELLER.ogrn} · ИНН {SELLER.inn}
+        </p>
+        <p>
+          {SELLER.address} · <a href={`mailto:${SELLER.email.replace(/[[\]]/g, '')}`}>{SELLER.email}</a> ·{' '}
+          <span className="nowrap">{SELLER.phone}</span>
+        </p>
+        <p>
+          Цены и наличие сообщаются при подтверждении заказа; сайт не является публичной офертой. Подбор сорта работает
+          на <a href={docHref('recommendations')}>рекомендательной технологии</a>. Чай не является лекарственным
+          средством.
+        </p>
+      </div>
       <p className="muted small">© {new Date().getFullYear()} chaiarkan.ru</p>
     </footer>
   );

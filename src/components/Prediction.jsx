@@ -43,7 +43,7 @@ export default function Prediction({ cards, values, constellationName, onClose, 
     document.body.style.overflow = 'hidden';
     closeRef.current?.focus({ preventScroll: true });
     const onKey = (e) => {
-      if (e.key === 'Escape' && !document.querySelector('.order-modal')) onClose();
+      if (e.key === 'Escape' && !document.querySelector('.order-modal, .legal')) onClose();
     };
     window.addEventListener('keydown', onKey);
     return () => {

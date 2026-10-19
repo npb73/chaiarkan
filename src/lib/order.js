@@ -80,6 +80,10 @@ export function loadContact() {
 }
 export function saveContact(c) {
   try {
+    if (!c) {
+      localStorage.removeItem(CONTACT_KEY);
+      return;
+    }
     localStorage.setItem(CONTACT_KEY, JSON.stringify(c));
   } catch {
     /* noop */
