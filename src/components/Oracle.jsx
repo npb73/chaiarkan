@@ -1,73 +1,52 @@
-/** Панель «Звёздного оракула» рядом с паутинкой: имя созвездия и кнопка предсказания. */
-export default function Oracle({ constellation, touched, prediction, stale, onPredict, onShowAgain, onRandom, onReset, onShare }) {
-  const fresh = prediction && !stale;
+/**
+ * Панель «Звёздного оракула» рядом с паутинкой.
+ * Содержимое статичное: как это работает и главная кнопка — предсказание.
+ * Имя созвездия и выбор колоды показываются в самом предсказании.
+ */
+export default function Oracle({ fresh, onPredict, onShowAgain, onRandom, onReset, onShare }) {
   return (
-    <aside className="oracle" aria-live="polite">
+    <aside className="oracle oracle-static">
       <div className="oracle-kicker">
-        <span className="dot" /> Ваше созвездие
+        <span className="dot" /> Звёздный оракул · 卜
       </div>
-      <h2 className="oracle-name">{constellation.name}</h2>
-      <div className="oracle-meta">
-        <span>{constellation.glow}</span>
-        <span>·</span>
-        <span>
-          {constellation.bright} {plural(constellation.bright, 'яркая звезда', 'яркие звёзды', 'ярких звёзд')}
-        </span>
-        <span>·</span>
-        <span className="mono">{constellation.code}</span>
-      </div>
+      <h2 className="oracle-name">Спросите небо о своём чае</h2>
 
-      <div className="oracle-tea oracle-empty">
-        <div className={`oracle-empty-glyph ${touched ? 'is-ready' : ''}`} aria-hidden="true">
-          {touched ? '卜' : '茶'}
-        </div>
-        {!touched ? (
-          <>
-            <div className="oracle-label">Небо ещё молчит</div>
-            <p className="oracle-desc">
-              Потяните любую звезду от центра к краю: сильнее те ноты, которые вы любите, слабее те, что не по душе.
-              Когда созвездие сложится, оракул вытянет для вас карты из чайной колоды.
-            </p>
-            <button className="btn btn-ghost" onClick={onRandom}>
-              <Sparkle /> Подсказать случайное небо
-            </button>
-          </>
-        ) : (
-          <>
-            <div className="oracle-label">{fresh ? 'Карты уже вытянуты' : 'Созвездие складывается'}</div>
-            <p className="oracle-desc">
-              {fresh
-                ? 'Колода ответила на это небо. Взгляните на карты ещё раз или измените звёзды и спросите снова.'
-                : 'Двигайте звёзды, пока небо не станет вашим. Затем спросите оракула: колода вытянет сорта, чьи созвездия ближе всего к вашему.'}
-            </p>
-            <div className="oracle-cta">
-              {fresh ? (
-                <button className="btn btn-gold btn-big" onClick={onShowAgain}>
-                  <Sparkle /> Посмотреть карты
-                </button>
-              ) : (
-                <button className="btn btn-gold btn-big btn-predict" onClick={onPredict}>
-                  <Sparkle /> {prediction ? 'Новое предсказание' : 'Получить предсказание'}
-                </button>
-              )}
-            </div>
-          </>
-        )}
-      </div>
+      <ol className="oracle-steps">
+        <li>
+          <span>
+            <b>Соберите созвездие.</b> Тяните звёзды от центра: дальше от центра — ярче нота во вкусе.
+          </span>
+        </li>
+        <li>
+          <span>
+            <b>Спросите оракула.</b> Колода вытянет сорта, чьи созвездия ближе всего к вашему.
+          </span>
+        </li>
+        <li>
+          <span>
+            <b>Закажите свой чай</b> прямо с карты, которая выпала.
+          </span>
+        </li>
+      </ol>
 
-      {touched && (
-        <div className="oracle-actions">
-          <button className="btn btn-ghost" onClick={onRandom}>
-            <Sparkle /> Случайное небо
-          </button>
-          <button className="btn btn-ghost" onClick={onShare}>
-            <LinkIcon /> Поделиться
-          </button>
-          <button className="btn btn-ghost" onClick={onReset}>
-            Сбросить
-          </button>
-        </div>
-      )}
+      <button className="btn btn-gold btn-oracle" onClick={fresh ? onShowAgain : onPredict}>
+        <Sparkle />
+        <span>{fresh ? 'Посмотреть карты' : 'Получить предсказание'}</span>
+      </button>
+
+      <div className="oracle-links">
+        <button className="link-btn" onClick={onRandom}>
+          Случайное небо
+        </button>
+        <span aria-hidden="true">·</span>
+        <button className="link-btn" onClick={onShare}>
+          Поделиться
+        </button>
+        <span aria-hidden="true">·</span>
+        <button className="link-btn" onClick={onReset}>
+          Сбросить
+        </button>
+      </div>
     </aside>
   );
 }
@@ -81,17 +60,10 @@ export function plural(n, one, few, many) {
 }
 
 const Sparkle = () => (
-  <svg viewBox="-1 -1 2 2" width="14" height="14" aria-hidden="true">
+  <svg viewBox="-1 -1 2 2" width="18" height="18" aria-hidden="true">
     <path
       d="M0,-1 C0.12,-0.12 0.12,-0.12 1,0 C0.12,0.12 0.12,0.12 0,1 C-0.12,0.12 -0.12,0.12 -1,0 C-0.12,-0.12 -0.12,-0.12 0,-1 Z"
       fill="currentColor"
     />
-  </svg>
-);
-
-const LinkIcon = () => (
-  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-    <path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1" />
-    <path d="M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1" />
   </svg>
 );

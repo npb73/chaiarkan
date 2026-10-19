@@ -2100,3 +2100,107 @@ button {
   mix-blend-mode: screen;
   pointer-events: none;
 }
+
+/* ---- Оракул: статичный блок с акцентом на кнопку предсказания ---- */
+.oracle-static .oracle-name {
+  font-size: clamp(28px, 2.8vw, 38px);
+  margin-bottom: 14px;
+}
+.oracle-steps {
+  list-style: none;
+  counter-reset: step;
+  margin: 0 0 22px;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+.oracle-steps li {
+  counter-increment: step;
+  display: grid;
+  grid-template-columns: 30px 1fr;
+  gap: 12px;
+  align-items: start;
+  font-size: 14.5px;
+  line-height: 1.45;
+  color: var(--body-2);
+}
+.oracle-steps li::before {
+  content: counter(step);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 17px;
+  color: var(--gold);
+  border: 1px solid rgba(240, 207, 134, 0.4);
+  background: rgba(240, 207, 134, 0.06);
+}
+.oracle-steps b {
+  color: var(--ink);
+  font-weight: 600;
+}
+.btn-oracle {
+  width: 100%;
+  min-height: 62px;
+  font-size: 17px;
+  letter-spacing: 0.02em;
+  border-radius: 18px;
+  gap: 10px;
+  position: relative;
+  overflow: hidden;
+  animation: callout 2.6s ease-in-out infinite;
+}
+.btn-oracle::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.55) 48%, transparent 66%);
+  transform: translateX(-120%);
+  animation: sweep 3.4s ease-in-out infinite;
+}
+@keyframes sweep {
+  55%,
+  100% {
+    transform: translateX(120%);
+  }
+}
+.oracle-links {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  color: var(--muted);
+  font-size: 13.5px;
+}
+.link-btn {
+  background: none;
+  border: 0;
+  padding: 4px 2px;
+  color: var(--muted);
+  font-size: 13.5px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: rgba(159, 176, 170, 0.35);
+  text-underline-offset: 3px;
+}
+.link-btn:hover {
+  color: var(--gold-2);
+}
+.link-btn:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+.web.nudge .web-stage {
+  animation: nudge 0.7s ease-in-out 2;
+}
+@keyframes nudge {
+  50% {
+    transform: scale(1.025);
+    filter: drop-shadow(0 0 24px rgba(240, 207, 134, 0.45));
+  }
+}

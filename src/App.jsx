@@ -141,6 +141,13 @@ export default function App() {
   };
 
   const predict = () => {
+    if (!touched) {
+      // небо ещё не трогали — мягко подсказываем начать со звёзд
+      flash('Сначала передвиньте хотя бы одну звезду на карте');
+      document.querySelector('.web')?.classList.add('nudge');
+      setTimeout(() => document.querySelector('.web')?.classList.remove('nudge'), 1400);
+      return;
+    }
     const snapshot = values.slice();
     // На телефоне — всегда одна карта, на большом экране — от одной до трёх
     const cards = drawCards(ranking, isPhone ? 1 : 3);
@@ -181,10 +188,7 @@ export default function App() {
                 onFirstTouch={() => setTouched(true)}
               />
               <Oracle
-                constellation={constellation}
-                touched={touched}
-                prediction={prediction}
-                stale={stale}
+                fresh={Boolean(prediction && !stale)}
                 onPredict={predict}
                 onShowAgain={() => setDeckOpen(true)}
                 onRandom={() => {
